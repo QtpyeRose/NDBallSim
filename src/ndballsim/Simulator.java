@@ -53,8 +53,8 @@ public class Simulator {
                         //this get a input number from the console and set the balls value to it
                         case "%":
                             newVal = 0;
-                            input = in.nextLine();
                             System.out.print("\nPlease input a number:");
+                            input = in.nextLine();
                             try {
                                 //parse in a new vaule from command line
                                 newVal = Integer.parseInt(input);
@@ -131,8 +131,8 @@ public class Simulator {
                         //input a char
                         case "$":
                             newVal = 0;
-                            input = in.nextLine();
                             System.out.print("\nPlease input a char:");
+                            input = in.nextLine();
                             try {
                                 //parse in a new vaule from command line
                                 newVal = (int) input.charAt(0);

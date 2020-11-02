@@ -7,7 +7,7 @@ package ndballsim;
 public class Main {
 
     public static void main(String[] args) {
-        String version = "V1.0";
+        String version = "V1.0.1";
         String help = "NDBall Simulator " + version + "\n"
                 + "Commands are formated like this:\n"
                 + "[flags] (file containing code)\n"
@@ -72,6 +72,8 @@ public class Main {
                             + "\n"
                             + "SPECIAL INSTR:\n"
                             + "E end program\n"
+                            + "\n"
+                            + "Check out the wiki for more info https://esolangs.org/wiki/NDBall"
                             + "");
                     break;
                 case "-log":
