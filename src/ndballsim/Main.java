@@ -11,7 +11,7 @@ public class Main {
         boolean log = false;
         boolean info = false;
         int max = 10000;
-        String version = "V1.0.3";
+        String version = "V1.0.4";
         String help = "NDBall Simulator " + version + "\n"
                 + "Commands are formated like this:\n"
                 + "[flags] (file containing code)\n"

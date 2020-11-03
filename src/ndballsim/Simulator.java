@@ -14,9 +14,9 @@ public class Simulator {
     // ... the code being measured ...
 
     public static void run(String file, int max, boolean doLog, boolean step, boolean infoTag) {
-        long startTime = System.nanoTime();//start measuring parcer time
+        long parseStartTime = System.nanoTime();//start measuring parcer time
         Instr[] instrs = Parser.parse(file);//this is the list of instructions
-        parseTime = System.nanoTime() - startTime;//stop measuring parcer time
+        parseTime = System.nanoTime() - parseStartTime;//stop measuring parcer time
         //begine messuring Sim time
         startTime = System.nanoTime();
         
