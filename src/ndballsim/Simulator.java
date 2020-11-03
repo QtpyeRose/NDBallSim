@@ -9,30 +9,38 @@ import java.util.Scanner;
 public class Simulator {
 
     private static boolean log = false;
+    private static long startTime;
+    private static long parseTime;
+    // ... the code being measured ...
 
-    public static void run(String file, int max, boolean doLog, boolean step) {
+    public static void run(String file, int max, boolean doLog, boolean step, boolean infoTag) {
+        long startTime = System.nanoTime();//start measuring parcer time
+        Instr[] instrs = Parser.parse(file);//this is the list of instructions
+        parseTime = System.nanoTime() - startTime;//stop measuring parcer time
+        //begine messuring Sim time
+        startTime = System.nanoTime();
         
         log = doLog;
         Scanner in = new Scanner(System.in); //the scanner used for input from console
         String input; // this will be used to hold the input
         int stepsDone = 0; //how many teps we have done
-        
-        log("MAX: "+max);
+
+        log("MAX: " + max);
         
         Pos ball = new Pos(0); //the ball itself
         int ballVal = 0; //the value of the ball
         int[] movement = new int[2]; //this represent the balls movement, its [dimention_number, ammount] so if it moving forwards in dim 4 then its [4,1] and backwards is [4,-1]
-        
+
         int newVal;
         log("Attempting parsing");
-        Instr[] instrs = Parser.parse(file);//this is the list of instructions
+        
         log("Parsing completed");
         log("Starting Simulation");
         while (true) {
             //if we are steping through once at a time
             if (step) {
                 //ask for input (pauses program)
-                System.out.println("next step? enter yes | ctrl+c no");
+                System.out.println("advance? enter|ctrl+c");
                 in.nextLine();
 
             }
@@ -61,8 +69,8 @@ public class Simulator {
                             break;
                         //end the program
                         case "E":
-                            log("program ended");
-                            System.exit(0);
+                            log("Program ended");
+                            exit(infoTag, stepsDone, instrs.length);
                             break;
                         //this get a input number from the console and set the balls value to it
                         case "%":
@@ -201,12 +209,11 @@ public class Simulator {
 
             }
             stepsDone++;
-            log("Step "+stepsDone+" done");
-            if(max >= 0 && stepsDone >= max){
-                warn("Program terminated: reached max steps ("+max+"), to disable this use -m -1");
-                System.exit(0);
+            log("Step " + stepsDone + " done");
+            if (max >= 0 && stepsDone >= max) {
+                warn("Program terminated: reached max steps (" + max + "), to disable this use -m -1");
+                exit(infoTag, stepsDone, instrs.length);
             }
-            
         }
 
     }
@@ -228,4 +235,38 @@ public class Simulator {
             System.out.println("LOG: " + str);
         }
     }
+
+    //this exits the program doing nececary exit stuff
+    private static void exit(boolean outputInfo, int steps, int instNum) {
+        if (outputInfo) {
+            System.out.println("\n\n***** Sim Info *****\n"
+                    + "Parse Time: "
+                    + ((double) parseTime / 1_000_000.0)
+                    + "ms\n"
+                    + "Sim Time: "
+                    + ((double) (System.nanoTime() - startTime) / 1_000_000.0)
+                    + "ms\n"
+                    + "Steps: "
+                    + steps
+                    + "\n"
+                    + "Num of Instr: "
+                    + instNum
+                    + "\n"
+                    + memoryStats()
+            );
+        }
+        System.exit(0);
+    }
+
+    //memory useage statisitics
+    public static String memoryStats() {
+        System.gc();
+        int kb = 1024;
+        // get Runtime instance
+        Runtime instance = Runtime.getRuntime();
+        // used memory
+        return "Active Mem: ~" + (instance.totalMemory() - instance.freeMemory()) / kb + "KB\n";
+        
+    }
+
 }

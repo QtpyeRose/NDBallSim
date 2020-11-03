@@ -11,6 +11,7 @@ public class Pos {
     //this array list stores values like this (length_in_dim_0, length_in_dim_1, length_in_dim_2...)
     //this is specificly private to allow for more efficent Pos classes to be able to be used with replacement of this class, withought having to reprogram everything
     private ArrayList<Integer> list;
+    private int sum;
 
     //initalization
     public Pos(int... ints) {
@@ -22,7 +23,8 @@ public class Pos {
         }
         //set the object to the array list generated
         this.list = arraylist;
-        //remove excess zeros from the end of the 
+        arraylist = null;//forces this to be garbge collected (jsut in case)
+        //remove excess zeros from the end of the line
         trim();
     }
 
@@ -60,14 +62,14 @@ public class Pos {
     private void trim() {
         //this deals with if the length is zero in all dimntions
         //add all the ints in the array together
-        int sum = 0;
+        sum = 0;
         for (int i : list) {
             sum += i;
         }
         //if sum = 0 
         if (sum == 0) {
             //set list to (0)
-            list = new ArrayList<>();
+            list.clear();
             list.add(0);
             //exit the function
             return;

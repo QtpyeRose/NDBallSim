@@ -9,6 +9,7 @@ public class Main {
     public static void main(String[] args) {
         boolean step = false;
         boolean log = false;
+        boolean info = false;
         int max = 10000;
         String version = "V1.0.3";
         String help = "NDBall Simulator " + version + "\n"
@@ -20,7 +21,8 @@ public class Main {
                 + "             when memory cells are written to etc\n"
                 + "-d -docs : This shows some basic documentation about how to program in NDBall\n"
                 + "-s -step : goes through the sim one step at a time, automaticly enables log\n"
-                + "-m -max (num) : only runs a max number of steps for the ball (default 10k) use a negative number for unlimited steps";
+                + "-m -max (num) : only runs a max number of steps for the ball (default 10k) use a negative number for unlimited steps\n"
+                + "-i -info : spits out info about the program after it completes";
         //no insput strings given
         if (args.length == 0) {
             System.out.println(help);
@@ -47,6 +49,10 @@ public class Main {
                                 error("Max tag (-m -max) requires a valid number");
                             }
                         i++;
+                        break;
+                    case "-i":
+                    case "-info":
+                        info = true;
                         break;
                     case "-d":
                     case "-docs":
@@ -102,7 +108,7 @@ public class Main {
                             + "");
                             break;
                     default:
-                        Simulator.run(args[i], max, log, step);
+                        Simulator.run(args[i], max, log, step, info);
                         System.exit(0);
                         break;
                     
