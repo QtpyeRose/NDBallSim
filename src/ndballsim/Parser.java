@@ -40,6 +40,12 @@ public class Parser {
             //remove whitespaces, we dont care about them
             String line = scanner.nextLine().replaceAll(" ", "").replaceAll("\t", "");
 
+            try {
+                //this allows us to tell an error if there is no instructions on a line
+                line.charAt(0);
+            } catch (StringIndexOutOfBoundsException e) {
+                error(lineNum, "Line empty");
+            }
             //parse the position identifier
             switch (line.charAt(0)) {
                 //if first char is a ( then we pase with (dim_0_length,dim_1_length...)
@@ -241,7 +247,7 @@ public class Parser {
                     //add the memory cell to the instruction list
                     list.add(new Instr(pos, "#", 0, "" + line.charAt(1), dim));
                     break;
-                    //if we cant find an instruction we error
+                //if we cant find an instruction we error
                 //input a char
                 case '$':
                     list.add(new Instr(pos, "$"));
@@ -253,7 +259,6 @@ public class Parser {
                 default:
                     error(lineNum, "Unknown Instruction \"" + line.charAt(0) + "\"");
                     break;
-                
 
             }
         }

@@ -10,7 +10,7 @@ public class Simulator {
 
     private static boolean log = false;
 
-    public static void run(String file, boolean doLog) {
+    public static void run(String file, boolean doLog, boolean step) {
         log = doLog;
         Scanner in = new Scanner(System.in); //the scanner used for input from console
         String input; // this will be used to hold the input
@@ -23,6 +23,14 @@ public class Simulator {
         log("Parsing completed");
         log("Starting Simulation");
         while (true) {
+            //if we are steping through once at a time
+            if (step) {
+                //ask for input (pauses program)
+                System.out.println("next step? enter yes | ctrl+c no");
+                in.nextLine();
+
+            }
+
             //check if there is instruction at balls position
             for (Instr instr : instrs) {
                 //we found a matching instruction
@@ -33,13 +41,13 @@ public class Simulator {
                         case ">":
                             movement[0] = (Integer) instr.info[0];
                             movement[1] = 1;
-                            log("Movement changed to ["+movement[0]+","+movement[1]+"]");
+                            log("Movement changed to [" + movement[0] + "," + movement[1] + "]");
                             break;
                         //change the balls movment to backward in the dimention in info 0
                         case "<":
                             movement[0] = (Integer) instr.info[0];
                             movement[1] = -1;
-                            log("Movement changed to ["+movement[0]+","+movement[1]+"]");
+                            log("Movement changed to [" + movement[0] + "," + movement[1] + "]");
                             break;
                         //print out the balls value
                         case "P":
@@ -172,14 +180,19 @@ public class Simulator {
             }
             //actaly move the ball based on the movement
             ball.shift(movement[0], movement[1]);
-            //error if the ball hits the wall
-            if (ball.getPos().get(movement[0]) > 4) {
-                error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
-                System.exit(1);
-            }
-            if (ball.getPos().get(movement[0]) == -1) {
-                error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
-                System.exit(1);
+            //this will only throw an error if the current dimention were movinth through is erased aka (0), in which case the check wont detect anything anyway
+            try {
+                //error if the ball hits the wall
+                if (ball.getPos().get(movement[0]) > 4) {
+                    error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
+                    System.exit(1);
+                }
+                if (ball.getPos().get(movement[0]) == -1) {
+                    error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
+                    System.exit(1);
+                }
+            } catch (IndexOutOfBoundsException e) {
+
             }
         }
 
@@ -199,7 +212,7 @@ public class Simulator {
     //this prints only if log is enabled
     private static void log(String str) {
         if (log) {
-            System.out.println("LOG: "+str);
+            System.out.println("LOG: " + str);
         }
     }
 }

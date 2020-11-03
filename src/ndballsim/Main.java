@@ -7,7 +7,8 @@ package ndballsim;
 public class Main {
 
     public static void main(String[] args) {
-        String version = "V1.0.1";
+        boolean step = false;
+        String version = "V1.0.2";
         String help = "NDBall Simulator " + version + "\n"
                 + "Commands are formated like this:\n"
                 + "[flags] (file containing code)\n"
@@ -15,7 +16,8 @@ public class Main {
                 + "-h : This shows help\n"
                 + "-l : This will log extra things in the terminal, such as the balls position at each step,\n"
                 + "     when memory cells are written to etc\n"
-                + "-d : This shows some basic documentation about how to program in NDBall";
+                + "-d : This shows some basic documentation about how to program in NDBall"
+                + "-s : goes through the sim one step at a time, automaticly enables -l";
         //no insput strings given
         if (args.length == 0) {
             System.out.println(help);
@@ -76,11 +78,13 @@ public class Main {
                             + "Check out the wiki for more info https://esolangs.org/wiki/NDBall"
                             + "");
                     break;
-                case "-log":
-                    Simulator.run(args[1], true);
+                case "-s":
+                    step = true;
+                case "-l":
+                    Simulator.run(args[1], true, step);
                     break;
                 default:
-                    Simulator.run(args[0], false);
+                    Simulator.run(args[0], false, step);
                     break;
             }
         }
