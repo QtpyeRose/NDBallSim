@@ -8,106 +8,130 @@ import java.util.ArrayList;
 
 public class Pos {
 
-    //this array list stores values like this (length_in_dim_0, length_in_dim_1, length_in_dim_2...)
-    //this is specificly private to allow for more efficent Pos classes to be able to be used with replacement of this class, withought having to reprogram everything
-    private ArrayList<Integer> list;
-    private int sum;
+    //this is a vector that stores in dim,length
+    public class Vector {
+
+        public int dim;
+        public int length;
+
+        public Vector(int dim, int length) {
+            this.dim = dim;
+            this.length = length;
+        }
+        
+        @Override
+        public boolean equals(Object o) { 
+        // If the object is compared with itself then return true   
+        if (o == this) { 
+            return true; 
+        } 
+        /* Check if o is an instance of Complex or not 
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof Vector)) { 
+            return false; 
+        } 
+        // typecast o to Vector so that we can compare data members  
+        Vector v = (Vector) o; 
+        // Compare the data members and return accordingly  
+        return v.dim == dim && v.length == length; 
+    } 
+        //we add this so hash codes dont mess up from the equals over ride
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 97 * hash + this.dim;
+            hash = 97 * hash + this.length;
+            return hash;
+        }
+        
+        @Override
+        public String toString(){
+            return dim+","+length;
+        }
+
+    }
+
+    //this array list atores a buch of vectors
+    private ArrayList<Vector> list;
 
     //initalization
     public Pos(int... ints) {
-        //new array list
-        ArrayList<Integer> arraylist = new ArrayList<>();
-        //add all the ints from the input to the list
-        for (int i : ints) {
-            arraylist.add(i);
+        list = new ArrayList<>();
+        for (int i = 0; i < ints.length; i++) {
+            
+            if (ints[i] != 0) {
+                list.add(new Vector(i, ints[i]));
+            }
         }
-        //set the object to the array list generated
-        this.list = arraylist;
-        arraylist = null;//forces this to be garbge collected (jsut in case)
-        //remove excess zeros from the end of the line
-        trim();
     }
 
-    public ArrayList<Integer> getPos() {
-        return list;
+    public int getLength(int dim) {
+        for (Vector v : list) {
+            if (v.dim == dim) {
+                return v.length;
+            }
+        }
+        return 0;
     }
 
-    public void setPos(ArrayList<Integer> newList) {
-        list = newList;
+    public void setLength(int dim, int length) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).dim == dim) {
+                list.get(i).length = length;
+                return;
+            }
+        }
+        list.add(new Vector(dim, length));
     }
 
     //this tells if 2 positions are the same in n-dimentional space
     public boolean equals(Pos checkPos) {
-        //assumend to be true
-        boolean isEqual = true;
-        //if there not the same length they dont have the same highest dimention so not equal
+        //if they are not the same length they dont have the same number of defined dimentions
         if (list.size() != checkPos.list.size()) {
-            isEqual = false;
+            return false;
         } else {
-            //check if the value in each dimnetion is the same
-            for (int i = 0; i < list.size(); i++) {
-                //if not 
-                if (list.get(i) != checkPos.list.get(i)) {
-                    //not equal
-                    isEqual = false;
-                    //stop the for loop, we dont need to check anymore
-                    break;
+            //for each vector in check pos check if 
+            for (Vector v: checkPos.list) {
+                if(!list.contains(v)){
+                    return false;
                 }
             }
         }
-        return isEqual;
+        return true;
     }
-
+    
     //this removes exces zeros
     private void trim() {
-        //this deals with if the length is zero in all dimntions
-        //add all the ints in the array together
-        sum = 0;
-        for (int i : list) {
-            sum += i;
-        }
-        //if sum = 0 
-        if (sum == 0) {
-            //set list to (0)
-            list.clear();
-            list.add(0);
-            //exit the function
-            return;
-        }
-        //if not we will reach here
-        //remove extra zeros from the end untill no more are left
-        while (list.get(list.size() - 1) == 0) {
-            list.remove(list.size() - 1);
-        }
+        list.removeIf(list -> list.length == 0);
     }
 
     //this moves the position along ammount in dimention dim
     public void shift(int dim, int amount) {
-        //if the dimention were trying to write to is not defined, add more 0`s untill we reach it
-        if (list.size() - 1 < dim) {
-            while (list.size() - 1 != dim) {
-                list.add(0);
+        for(int i = 0; i < list.size(); i++){
+            if(list.get(i).dim == dim){
+                list.get(i).length += amount;
+                trim();
+                return;
             }
         }
-        //shift the value at dimention dim by ammount
-        list.set(dim, list.get(dim) + amount);
-        //trim off any zeros, this only matters if we shift so the last value is 0
-        trim();
+        list.add(new Vector(dim, amount));
     }
 
     //this outputs the dimention as (a,b,c...)
     @Override
     public String toString() {
-        //start pos
-        String listString = "(";
-        //add ints
-        for (int i : list) {
-            listString += i + ", ";
+        //add a starting {
+        String listString = "{";
+        //add the peices
+        for (Vector v : list) {
+            listString += v+"|";
+        } 
+        //remove last "|"
+        if (listString.length() != 1){
+            listString = listString.substring(0, listString.length() - 1);
         }
-        //remove last ", "
-        listString = listString.substring(0, listString.length() - 2);
-        //add last )
-        listString += ")";
+        //add closeing }
+        listString += "}";
         return listString;
     }
 }

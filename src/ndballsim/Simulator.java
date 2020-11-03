@@ -4,6 +4,7 @@
 //this class simulates the ball in n-dim space and run ther program based on a list if instructions
 package ndballsim;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Simulator {
@@ -19,7 +20,6 @@ public class Simulator {
         parseTime = System.nanoTime() - parseStartTime;//stop measuring parcer time
         //begine messuring Sim time
         startTime = System.nanoTime();
-        
         log = doLog;
         Scanner in = new Scanner(System.in); //the scanner used for input from console
         String input; // this will be used to hold the input
@@ -195,19 +195,16 @@ public class Simulator {
             //actaly move the ball based on the movement
             ball.shift(movement[0], movement[1]);
             //this will only throw an error if the current dimention were movinth through is erased aka (0), in which case the check wont detect anything anyway
-            try {
                 //error if the ball hits the wall
-                if (ball.getPos().get(movement[0]) > 4) {
+                if (ball.getLength(movement[0]) > 4) {
                     error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
                     System.exit(1);
                 }
-                if (ball.getPos().get(movement[0]) == -1) {
+                if (ball.getLength(movement[0]) == -1) {
                     error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
                     System.exit(1);
                 }
-            } catch (IndexOutOfBoundsException e) {
 
-            }
             stepsDone++;
             log("Step " + stepsDone + " done");
             if (max >= 0 && stepsDone >= max) {

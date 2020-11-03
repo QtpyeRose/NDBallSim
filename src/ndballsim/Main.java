@@ -2,11 +2,12 @@
  * NDBall Simulator by Aspen Wilson is licensed under CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0 
  */
 package ndballsim;
-
+import ndballsim.Pos.Vector;
 //this is the calss is run with the jar file, it will handle the command line input
 public class Main {
 
     public static void main(String[] args) {
+        
         boolean step = false;
         boolean log = false;
         boolean info = false;
