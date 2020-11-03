@@ -8,26 +8,49 @@ public class Main {
 
     public static void main(String[] args) {
         boolean step = false;
-        String version = "V1.0.2";
+        boolean log = false;
+        int max = 10000;
+        String version = "V1.0.3";
         String help = "NDBall Simulator " + version + "\n"
                 + "Commands are formated like this:\n"
                 + "[flags] (file containing code)\n"
                 + "the flags are as follows:\n"
-                + "-h : This shows help\n"
-                + "-l : This will log extra things in the terminal, such as the balls position at each step,\n"
-                + "     when memory cells are written to etc\n"
-                + "-d : This shows some basic documentation about how to program in NDBall"
-                + "-s : goes through the sim one step at a time, automaticly enables -l";
+                + "-h -help : This shows help\n"
+                + "-l -log  : This will log extra things in the terminal, such as the ball's position at each step,\n"
+                + "             when memory cells are written to etc\n"
+                + "-d -docs : This shows some basic documentation about how to program in NDBall\n"
+                + "-s -step : goes through the sim one step at a time, automaticly enables log\n"
+                + "-m -max (num) : only runs a max number of steps for the ball (default 10k) use a negative number for unlimited steps";
         //no insput strings given
         if (args.length == 0) {
             System.out.println(help);
         } else {
-            switch (args[0]) {
-                case "-h":
-                    System.out.println(help);
-                    break;
-                case "-d":
-                    System.out.println("the ball starts at 0,0,0...\n"
+            for(int i = 0; i < args.length; i++){
+                switch(args[i]){
+                    case "-h":
+                    case "-help":
+                        System.out.println(help);
+                        break;
+                    case "-s":
+                    case "-step":
+                        step = true;
+                        //no break because step also enables log
+                    case "-l":
+                    case "-log":
+                        log = true;
+                        break;
+                    case "-m":
+                    case "-max":
+                        try {
+                                max = Integer.parseInt(args[i+1]);
+                            } catch (NumberFormatException|ArrayIndexOutOfBoundsException e) {
+                                error("Max tag (-m -max) requires a valid number");
+                            }
+                        i++;
+                        break;
+                    case "-d":
+                    case "-docs":
+                        System.out.println("the ball starts at 0,0,0...\n"
                             + "\n"
                             + "dimensions are 5 spaces long (from 0 to 4)\n"
                             + "\n"
@@ -77,17 +100,20 @@ public class Main {
                             + "\n"
                             + "Check out the wiki for more info https://esolangs.org/wiki/NDBall"
                             + "");
-                    break;
-                case "-s":
-                    step = true;
-                case "-l":
-                    Simulator.run(args[1], true, step);
-                    break;
-                default:
-                    Simulator.run(args[0], false, step);
-                    break;
+                            break;
+                    default:
+                        Simulator.run(args[i], max, log, step);
+                        System.exit(0);
+                        break;
+                    
+                }
             }
         }
         System.exit(0);
+    }
+    //tells user error and ends program
+    private static void error(String str){
+        System.out.println("ERROR: "+str);
+        System.exit(1);
     }
 }

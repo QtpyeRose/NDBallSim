@@ -10,14 +10,20 @@ public class Simulator {
 
     private static boolean log = false;
 
-    public static void run(String file, boolean doLog, boolean step) {
+    public static void run(String file, int max, boolean doLog, boolean step) {
+        
         log = doLog;
         Scanner in = new Scanner(System.in); //the scanner used for input from console
         String input; // this will be used to hold the input
-        int newVal;
+        int stepsDone = 0; //how many teps we have done
+        
+        log("MAX: "+max);
+        
         Pos ball = new Pos(0); //the ball itself
         int ballVal = 0; //the value of the ball
         int[] movement = new int[2]; //this represent the balls movement, its [dimention_number, ammount] so if it moving forwards in dim 4 then its [4,1] and backwards is [4,-1]
+        
+        int newVal;
         log("Attempting parsing");
         Instr[] instrs = Parser.parse(file);//this is the list of instructions
         log("Parsing completed");
@@ -194,6 +200,13 @@ public class Simulator {
             } catch (IndexOutOfBoundsException e) {
 
             }
+            stepsDone++;
+            log("Step "+stepsDone+" done");
+            if(max >= 0 && stepsDone >= max){
+                warn("Program terminated: reached max steps ("+max+"), to disable this use -m -1");
+                System.exit(0);
+            }
+            
         }
 
     }
