@@ -12,6 +12,7 @@ public class Simulator {
     private static boolean log = false;
     private static long startTime;
     private static long parseTime;
+    private static long timeToRemove;
     // ... the code being measured ...
 
     public static void run(String file, int max, boolean doLog, boolean step, boolean infoTag) {
@@ -76,7 +77,7 @@ public class Simulator {
                         case "%":
                             newVal = 0;
                             System.out.print("\nPlease input a number:");
-                            input = in.nextLine();
+                            input = getInput(in);
                             try {
                                 //parse in a new vaule from command line
                                 newVal = Integer.parseInt(input);
@@ -88,7 +89,7 @@ public class Simulator {
                                 newVal += 256;
                             }
                             ballVal = newVal % 255;
-                            log("input number \"" + input + "\" read in as number: " + newVal);
+                            log("Input number \"" + input + "\" read in as number: " + newVal);
                             break;
                         //Y logic case
                         case "Y":
@@ -121,6 +122,8 @@ public class Simulator {
                                         break;
                                 }
                             }
+                            //log the movement change
+                            log("Movement changed to [" + movement[0] + "," + movement[1] + "]");
                             break;
                         //add one to the balls value while keeping bounded in (0-255)
                         case "+":
@@ -148,13 +151,14 @@ public class Simulator {
                             } else {
                                 //read from the cell
                                 ballVal = (int) instr.info[0];
+                                log("MEM CELL READ Val:" + ballVal + " Pos:" + instr.pos);
                             }
                             break;
                         //input a char
                         case "$":
                             newVal = 0;
                             System.out.print("\nPlease input a char:");
-                            input = in.nextLine();
+                            input = getInput(in);
                             try {
                                 //parse in a new vaule from command line
                                 newVal = (int) input.charAt(0);
@@ -166,7 +170,7 @@ public class Simulator {
                                 newVal += 256;
                             }
                             ballVal = newVal % 255;
-                            log("input number \"" + input + "\" read in as number: " + newVal);
+                            log("Input number \"" + input + "\" read in as number: " + newVal);
                             break;
                         //output the value of the ball as a char
                         case "p":
@@ -241,7 +245,7 @@ public class Simulator {
                     + ((double) parseTime / 1_000_000.0)
                     + "ms\n"
                     + "Sim Time: "
-                    + ((double) (System.nanoTime() - startTime) / 1_000_000.0)
+                    + ((double) (System.nanoTime() - startTime - timeToRemove) / 1_000_000.0)
                     + "ms\n"
                     + "Steps: "
                     + steps
@@ -256,7 +260,7 @@ public class Simulator {
     }
 
     //memory useage statisitics
-    public static String memoryStats() {
+    private static String memoryStats() {
         System.gc();
         int kb = 1024;
         // get Runtime instance
@@ -264,6 +268,13 @@ public class Simulator {
         // used memory
         return "Active Mem: ~" + (instance.totalMemory() - instance.freeMemory()) / kb + "KB\n";
         
+    }
+    //this allows up to get input and pause timer for time waiting for input
+    private static String getInput(Scanner scan){
+        long start = System.nanoTime();
+        String input = scan.nextLine();
+        timeToRemove+= (System.nanoTime() - start);
+        return input;
     }
 
 }
