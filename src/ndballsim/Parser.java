@@ -6,6 +6,7 @@ package ndballsim;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -262,6 +263,8 @@ public class Parser {
 
             }
         }
+        //sort the array list based on the highest dimention
+        Collections.sort(list);
         //return a list of all the instruction we parsed
         return list.toArray(new Instr[list.size()]);
     }

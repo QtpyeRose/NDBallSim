@@ -90,6 +90,10 @@ public class Pos {
         }
         list.add(new Vector(dim, length));
     }
+    
+    public int getHighestDim(){
+        return highestDim;
+    }
 
     //this tells if the position are the same as each other
     @Override

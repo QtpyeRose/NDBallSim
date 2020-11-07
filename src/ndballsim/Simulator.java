@@ -4,8 +4,8 @@
 //this class simulates the ball in n-dim space and run ther program based on a list if instructions
 package ndballsim;
 
-import java.util.Arrays;
 import java.util.Scanner;
+import java.util.HashMap;
 
 public class Simulator {
 
@@ -17,10 +17,19 @@ public class Simulator {
 
     public static void run(String file, int max, boolean doLog, boolean step, boolean infoTag) {
         long parseStartTime = System.nanoTime();//start measuring parcer time
-        Instr[] instrs = Parser.parse(file);//this is the list of instructions
+        Instr[] instrs = Parser.parse(file);//this is the sorted list of instructions
         parseTime = System.nanoTime() - parseStartTime;//stop measuring parcer time
         //begine messuring Sim time
         startTime = System.nanoTime();
+        //this hash map maps the highest dimention to the position of the first ocourance of that dmention in the instr list
+        HashMap<Integer, Integer> startPos = new HashMap<>();
+        //assemble the hash map
+        for(int i = 0; i < instrs.length; i++){
+            if(!startPos.containsKey(instrs[i].pos.getHighestDim())){
+                startPos.put(instrs[i].pos.getHighestDim(), i);
+            }
+        }
+        
         log = doLog;
         Scanner in = new Scanner(System.in); //the scanner used for input from console
         String input; // this will be used to hold the input
@@ -47,20 +56,23 @@ public class Simulator {
             }
 
             //check if there is instruction at balls position
-            for (Instr instr : instrs) {
+            for (int i = startPos.get(ball.getHighestDim()); i < instrs.length; i++) {
+                if(ball.getHighestDim() != instrs[i].pos.getHighestDim()){
+                    break;
+                }
                 //we found a matching instruction
-                if (ball.equals(instr.pos)) {
+                if (ball.equals(instrs[i].pos)) {
                     //what instruction is it?
-                    switch (instr.name) {
+                    switch (instrs[i].name) {
                         //change the balls movment to forward in the dimention in info 0
                         case ">":
-                            movement[0] = (Integer) instr.info[0];
+                            movement[0] = (Integer) instrs[i].info[0];
                             movement[1] = 1;
                             log("Movement changed to [" + movement[0] + "," + movement[1] + "]");
                             break;
                         //change the balls movment to backward in the dimention in info 0
                         case "<":
-                            movement[0] = (Integer) instr.info[0];
+                            movement[0] = (Integer) instrs[i].info[0];
                             movement[1] = -1;
                             log("Movement changed to [" + movement[0] + "," + movement[1] + "]");
                             break;
@@ -94,30 +106,30 @@ public class Simulator {
                         //Y logic case
                         case "Y":
                             //if ballVal is less then info 0 we want to send the ball along dimention info 2
-                            if (ballVal < (int) instr.info[0]) {
-                                switch ((String) instr.info[1]) {
+                            if (ballVal < (int) instrs[i].info[0]) {
+                                switch ((String) instrs[i].info[1]) {
                                     //foward movement
                                     case ">":
-                                        movement[0] = (Integer) instr.info[2];
+                                        movement[0] = (Integer) instrs[i].info[2];
                                         movement[1] = 1;
                                         break;
                                     //backward moevment
                                     case "<":
-                                        movement[0] = (Integer) instr.info[2];
+                                        movement[0] = (Integer) instrs[i].info[2];
                                         movement[1] = -1;
                                         break;
                                 }
                                 //otherwise we want to send the ball along dimention info 4
                             } else {
-                                switch ((String) instr.info[3]) {
+                                switch ((String) instrs[i].info[3]) {
                                     //forward mevemnt
                                     case ">":
-                                        movement[0] = (Integer) instr.info[4];
+                                        movement[0] = (Integer) instrs[i].info[4];
                                         movement[1] = 1;
                                         break;
                                     //backwards movement
                                     case "<":
-                                        movement[0] = (Integer) instr.info[4];
+                                        movement[0] = (Integer) instrs[i].info[4];
                                         movement[1] = -1;
                                         break;
                                 }
@@ -144,14 +156,14 @@ public class Simulator {
                         //data cell 
                         case "#":
                             //check if the balls movement matches the memeory cells writing direction
-                            if ((int) instr.info[2] == movement[0] && (((String) instr.info[1]).equals(">") && movement[1] == 1 || (((String) instr.info[1]).equals("<") && movement[1] == -1))) {
+                            if ((int) instrs[i].info[2] == movement[0] && (((String) instrs[i].info[1]).equals(">") && movement[1] == 1 || (((String) instrs[i].info[1]).equals("<") && movement[1] == -1))) {
                                 //write to the cell
-                                instr.info[0] = ballVal;
-                                log("MEM CELL WRITTEN Val:" + ballVal + " Pos:" + instr.pos);
+                                instrs[i].info[0] = ballVal;
+                                log("MEM CELL WRITTEN Val:" + ballVal + " Pos:" + instrs[i].pos);
                             } else {
                                 //read from the cell
-                                ballVal = (int) instr.info[0];
-                                log("MEM CELL READ Val:" + ballVal + " Pos:" + instr.pos);
+                                ballVal = (int) instrs[i].info[0];
+                                log("MEM CELL READ Val:" + ballVal + " Pos:" + instrs[i].pos);
                             }
                             break;
                         //input a char
@@ -185,7 +197,7 @@ public class Simulator {
                                     + "if you see this please open an issue on the Github page\n"
                                     + "include a copy of your code, what version of the NDBallSim this error occured on"
                                     + "and the name of the instruction given on the next line "
-                                    + "Instruction name:\"" + instr.name + "\"");
+                                    + "Instruction name:\"" + instrs[i].name + "\"");
 
                     }
                 }
