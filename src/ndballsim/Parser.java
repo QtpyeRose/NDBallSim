@@ -255,7 +255,7 @@ public class Parser {
                         error(lineNum, "Memory cell requires a direction ex: #>12");
                     }
                     //add the memory cell to the instruction list
-                    list.add(new Instr(pos, "#", 0, "" + line.charAt(1), dim));
+                    list.add(new Instr(pos, "#", 0, line.charAt(1), dim));
                     break;
                 //if we cant find an instruction we error
                 //input a char
@@ -265,6 +265,40 @@ public class Parser {
                 //print out a char
                 case 'p':
                     list.add(new Instr(pos, "p"));
+                    break;
+                //mirror instruction, reverses direction
+                case '|':
+                    list.add(new Instr(pos, "|"));
+                    break;
+                //random instruction sets the balls value to (0-255)
+                case 'R':
+                    list.add(new Instr(pos, "R"));
+                    break;
+                //apioform instruction add 1 to hive
+                case 'a':
+                    list.add(new Instr(pos, "a"));
+                    break;
+                //flower instruction remove 1 from hive
+                case 'f':
+                    list.add(new Instr(pos, "f"));
+                    break;
+                //queen instruction, set hive value to 0
+                case 'q':
+                    list.add(new Instr(pos, "q"));
+                    break;
+                //hive cell
+                case 'H':
+                    list.add(new Instr(pos, "H"));
+                    break;
+                case 'K':
+                    try {
+                        list.add(new Instr(pos, "K", line.charAt(1), Integer.parseInt(line.substring(2,line.length()))));
+                    }catch (NumberFormatException e) {
+                            error(lineNum, "\"" + line.substring(2, line.length()) + "\" could not be converted into a number");
+                    }
+                    break;
+                case 'n':
+                    list.add(new Instr(pos, "n"));
                     break;
                 default:
                     error(lineNum, "Unknown Instruction \"" + line.charAt(0) + "\"");

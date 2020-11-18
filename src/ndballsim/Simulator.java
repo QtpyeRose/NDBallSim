@@ -6,6 +6,7 @@ package ndballsim;
 
 import java.util.Scanner;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Simulator {
 
@@ -16,34 +17,42 @@ public class Simulator {
     // ... the code being measured ...
 
     public static void run(String file, int max, boolean doLog, boolean step, boolean infoTag) {
+        //timeing stuff and 
         long parseStartTime = System.nanoTime();//start measuring parcer time
         Instr[] instrs = Parser.parse(file);//this is the sorted list of instructions
         parseTime = System.nanoTime() - parseStartTime;//stop measuring parcer time
         //begine messuring Sim time
         startTime = System.nanoTime();
+        
         //this hash map maps the highest dimention to the position of the first ocourance of that dmention in the instr list
         HashMap<Integer, Integer> startPos = new HashMap<>();
         //assemble the hash map
-        for(int i = 0; i < instrs.length; i++){
-            if(!startPos.containsKey(instrs[i].pos.getHighestDim())){
+        for (int i = 0; i < instrs.length; i++) {
+            if (!startPos.containsKey(instrs[i].pos.getHighestDim())) {
                 startPos.put(instrs[i].pos.getHighestDim(), i);
             }
         }
-        
+
+        //varaibles and stats
         log = doLog;
-        Scanner in = new Scanner(System.in); //the scanner used for input from console
         String input; // this will be used to hold the input
         int stepsDone = 0; //how many teps we have done
-
-        log("MAX: " + max);
         
+        //object used in simulation
+        Random ran = new Random();
+        Scanner in = new Scanner(System.in); //the scanner used for input from console
+        
+        //log the max amount of steps
+        log("MAX: " + max);
+
+        //simulation values
         Pos ball = new Pos(0); //the ball itself
         int ballVal = 0; //the value of the ball
         int[] movement = new int[2]; //this represent the balls movement, its [dimention_number, ammount] so if it moving forwards in dim 4 then its [4,1] and backwards is [4,-1]
-
-        int newVal;
-        log("Attempting parsing");
+        int hiveVal = 0;//this is the value of the hive cell
+        int newVal; //this is use to store a vlue for later use in the program
         
+        log("Attempting parsing");
         log("Parsing completed");
         log("Starting Simulation");
         while (true) {
@@ -57,7 +66,7 @@ public class Simulator {
 
             //check if there is instruction at balls position
             for (int i = startPos.get(ball.getHighestDim()); i < instrs.length; i++) {
-                if(ball.getHighestDim() != instrs[i].pos.getHighestDim()){
+                if (ball.getHighestDim() != instrs[i].pos.getHighestDim()) {
                     break;
                 }
                 //we found a matching instruction
@@ -157,7 +166,7 @@ public class Simulator {
                         //data cell 
                         case "#":
                             //check if the balls movement matches the memeory cells writing direction
-                            if ((int) instrs[i].info[2] == movement[0] && (((String) instrs[i].info[1]).equals(">") && movement[1] == 1 || (((String) instrs[i].info[1]).equals("<") && movement[1] == -1))) {
+                            if (matchMove(movement,(char) instrs[i].info[1],(int) instrs[i].info[2]))  {
                                 //write to the cell
                                 instrs[i].info[0] = ballVal;
                                 log("MEM CELL WRITTEN Val:" + ballVal + " Pos:" + instrs[i].pos);
@@ -189,6 +198,48 @@ public class Simulator {
                         case "p":
                             System.out.print((char) ballVal);
                             break;
+                        //mirror instruction, reverses direction
+                        case "|":
+                            //set the direction of movement to its oppisite
+                            movement[1] = -movement[1];
+                            break;
+                        //one way mirror 
+                        case "K":
+                            //if the movement of ball matches defined movemnt of mirror
+                            if (matchMove(movement,(char)instrs[i].info[0],(int)instrs[i].info[1])) {
+                                //let the ball travel though
+                                break;
+                            } else {
+                                //reverse movement direction
+                                movement[1] = -movement[1]; 
+                            }
+                            break;
+                        //random instruction sets the balls value to (0-255)
+                        case "R":
+                            ballVal = ran.nextInt(256);//set ball to random int
+                            break;
+                        //apioform instruction add 1 to hive
+                        case "a":
+                            hiveVal=(hiveVal+1)%255;
+                            break;
+                        //flower instruction remove 1 from hive
+                        case "f":
+                            hiveVal--;
+                            if(hiveVal == -1){
+                                hiveVal = 255;
+                            }
+                            break;
+                        //queen instruction, set hive value to 0
+                        case "q":
+                            hiveVal = 0;
+                            break;
+                        //hive cell
+                        case "H":
+                            ballVal = hiveVal;
+                            break;
+                        case "n":
+                            hiveVal = ballVal;
+                            break;
                         //the parcer spit out an unknown instruction
                         default:
                             error("Unkown Internal Instruction.\n"
@@ -212,15 +263,15 @@ public class Simulator {
             //actaly move the ball based on the movement
             ball.shift(movement[0], movement[1]);
             //this will only throw an error if the current dimention were movinth through is erased aka (0), in which case the check wont detect anything anyway
-                //error if the ball hits the wall
-                if (ball.getLength(movement[0]) > 4) {
-                    error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
-                    System.exit(1);
-                }
-                if (ball.getLength(movement[0]) == -1) {
-                    error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
-                    System.exit(1);
-                }
+            //error if the ball hits the wall
+            if (ball.getLength(movement[0]) > 4) {
+                error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
+                System.exit(1);
+            }
+            if (ball.getLength(movement[0]) == -1) {
+                error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
+                System.exit(1);
+            }
 
             stepsDone++;
             log("Step " + stepsDone + " done");
@@ -280,14 +331,18 @@ public class Simulator {
         Runtime instance = Runtime.getRuntime();
         // used memory
         return "Active Mem: ~" + (instance.totalMemory() - instance.freeMemory()) / kb + "KB\n";
-        
+
     }
+
     //this allows up to get input and pause timer for time waiting for input
-    private static String getInput(Scanner scan){
+    private static String getInput(Scanner scan) {
         long start = System.nanoTime();
         String input = scan.nextLine();
-        timeToRemove+= (System.nanoTime() - start);
+        timeToRemove += (System.nanoTime() - start);
         return input;
     }
 
+    private static boolean matchMove(int[] mov,char dir, int dim){
+        return (dim == mov[0] && ((dir == '>' && mov[1] == 1) || (dir == '<' && mov[1] == -1)));
+    }
 }
