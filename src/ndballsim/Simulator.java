@@ -105,6 +105,7 @@ public class Simulator {
                             break;
                         //Y logic case
                         case "Y":
+                            //check if Y logiv operator is checking for impossible number
                             //if ballVal is less then info 0 we want to send the ball along dimention info 2
                             if (ballVal < (int) instrs[i].info[0]) {
                                 switch ((String) instrs[i].info[1]) {

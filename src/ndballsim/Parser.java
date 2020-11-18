@@ -42,10 +42,11 @@ public class Parser {
             String line = scanner.nextLine().replaceAll(" ", "").replaceAll("\t", "");
 
             try {
-                //this allows us to tell an error if there is no instructions on a line
+                //this allows us to skip a line  if there is nothing in a line
                 line.charAt(0);
             } catch (StringIndexOutOfBoundsException e) {
-                error(lineNum, "Line empty");
+                //skip the parcing of this line
+                continue;
             }
             //parse the position identifier
             switch (line.charAt(0)) {
@@ -121,6 +122,10 @@ public class Parser {
                         error(lineNum, "Invalid position statement, missing closeing }");
                     }
                     break;
+                //this line is a comment
+                case '/':
+                    //skip this line and start with the next one
+                    continue;
                 default:
                     //if we dont find a ( or { as the first char then the position decoration is malformed
                     error(lineNum, "Invalid start of new line, must be a position decloration (a,b,c...) or {a,b|c,d...}");
@@ -197,6 +202,10 @@ public class Parser {
                         value = Integer.parseInt(inputs[0]);
                     } catch (NumberFormatException e) {
                         error(lineNum, "\"" + inputs[0] + "\" could not be converted into a number");
+                    }
+                    //error if the provided value is out of (0-255)
+                    if(value < 0 || value > 255){
+                        error(lineNum, "Y logic operation only excepts values from 0 to 255");
                     }
                     //check if the first movement instruction includes a movement
                     if (inputs[1].charAt(0) == '>' || inputs[1].charAt(0) == '<') {

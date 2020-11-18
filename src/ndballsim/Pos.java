@@ -72,6 +72,11 @@ public class Pos {
         }
     }
 
+    public Pos(Pos p) {
+        this.list = p.list;
+        this.highestDim = p.highestDim;
+    }
+
     public int getLength(int dim) {
         for (Vector v : list) {
             if (v.dim == dim) {
@@ -90,8 +95,8 @@ public class Pos {
         }
         list.add(new Vector(dim, length));
     }
-    
-    public int getHighestDim(){
+
+    public int getHighestDim() {
         return highestDim;
     }
 
@@ -112,7 +117,7 @@ public class Pos {
         // Compare the data members and return accordingly 
         //if they are not the same length they dont have the same number of defined dimentions
         //they dont share highest dim, must not be be the same
-        if(p.highestDim != highestDim){
+        if (p.highestDim != highestDim) {
             return false;
         }
         if (list.size() != p.list.size()) {
@@ -127,6 +132,7 @@ public class Pos {
         }
         return true;
     }
+
     //added to keep hash codes in order whn overrideing equals method
     @Override
     public int hashCode() {
