@@ -204,7 +204,7 @@ public class Parser {
                         error(lineNum, "\"" + inputs[0] + "\" could not be converted into a number");
                     }
                     //error if the provided value is out of (0-255)
-                    if(value < 0 || value > 255){
+                    if (value < 0 || value > 255) {
                         error(lineNum, "Y logic operation only excepts values from 0 to 255");
                     }
                     //check if the first movement instruction includes a movement
@@ -292,11 +292,11 @@ public class Parser {
                     break;
                 case 'K':
                     try {
-                        list.add(new Instr(pos, "K", line.charAt(1), Integer.parseInt(line.substring(2,line.length()))));
-                    }catch (NumberFormatException e) {
-                            error(lineNum, "\"" + line.substring(2, line.length()) + "\" could not be converted into a number");
-                    }
-                    break;
+                    list.add(new Instr(pos, "K", line.charAt(1), Integer.parseInt(line.substring(2, line.length()))));
+                } catch (NumberFormatException e) {
+                    error(lineNum, "\"" + line.substring(2, line.length()) + "\" could not be converted into a number");
+                }
+                break;
                 case 'n':
                     list.add(new Instr(pos, "n"));
                     break;
