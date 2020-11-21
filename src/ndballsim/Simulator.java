@@ -23,7 +23,7 @@ public class Simulator {
         parseTime = System.nanoTime() - parseStartTime;//stop measuring parcer time
         //begine messuring Sim time
         startTime = System.nanoTime();
-        
+
         //this hash map maps the highest dimention to the position of the first ocourance of that dmention in the instr list
         HashMap<Integer, Integer> startPos = new HashMap<>();
         //assemble the hash map
@@ -37,11 +37,11 @@ public class Simulator {
         log = doLog;
         String input; // this will be used to hold the input
         int stepsDone = 0; //how many teps we have done
-        
+
         //object used in simulation
         Random ran = new Random();
         Scanner in = new Scanner(System.in); //the scanner used for input from console
-        
+
         //log the max amount of steps
         log("MAX: " + max);
 
@@ -51,7 +51,7 @@ public class Simulator {
         int[] movement = new int[2]; //this represent the balls movement, its [dimention_number, ammount] so if it moving forwards in dim 4 then its [4,1] and backwards is [4,-1]
         int hiveVal = 0;//this is the value of the hive cell
         int newVal; //this is use to store a vlue for later use in the program
-        
+
         log("Attempting parsing");
         log("Parsing completed");
         log("Starting Simulation");
@@ -109,7 +109,7 @@ public class Simulator {
                             while (newVal < 0) {
                                 newVal += 256;
                             }
-                            ballVal = newVal % 255;
+                            ballVal = newVal % 256;
                             log("Input number \"" + input + "\" read in as number: " + newVal);
                             break;
                         //Y logic case
@@ -166,7 +166,7 @@ public class Simulator {
                         //data cell 
                         case "#":
                             //check if the balls movement matches the memeory cells writing direction
-                            if (matchMove(movement,(char) instrs[i].info[1],(int) instrs[i].info[2]))  {
+                            if (matchMove(movement, (char) instrs[i].info[1], (int) instrs[i].info[2])) {
                                 //write to the cell
                                 instrs[i].info[0] = ballVal;
                                 log("MEM CELL WRITTEN Val:" + ballVal + " Pos:" + instrs[i].pos);
@@ -191,7 +191,7 @@ public class Simulator {
                             while (newVal < 0) {
                                 newVal += 256;
                             }
-                            ballVal = newVal % 255;
+                            ballVal = newVal % 256;
                             log("Input number \"" + input + "\" read in as number: " + newVal);
                             break;
                         //output the value of the ball as a char
@@ -206,12 +206,12 @@ public class Simulator {
                         //one way mirror 
                         case "K":
                             //if the movement of ball matches defined movemnt of mirror
-                            if (matchMove(movement,(char)instrs[i].info[0],(int)instrs[i].info[1])) {
+                            if (matchMove(movement, (char) instrs[i].info[0], (int) instrs[i].info[1])) {
                                 //let the ball travel though
                                 break;
                             } else {
                                 //reverse movement direction
-                                movement[1] = -movement[1]; 
+                                movement[1] = -movement[1];
                             }
                             break;
                         //random instruction sets the balls value to (0-255)
@@ -220,12 +220,12 @@ public class Simulator {
                             break;
                         //apioform instruction add 1 to hive
                         case "a":
-                            hiveVal=(hiveVal+1)%255;
+                            hiveVal = (hiveVal + 1) % 256;
                             break;
                         //flower instruction remove 1 from hive
                         case "f":
                             hiveVal--;
-                            if(hiveVal == -1){
+                            if (hiveVal == -1) {
                                 hiveVal = 255;
                             }
                             break;
@@ -342,7 +342,7 @@ public class Simulator {
         return input;
     }
 
-    private static boolean matchMove(int[] mov,char dir, int dim){
+    private static boolean matchMove(int[] mov, char dir, int dim) {
         return (dim == mov[0] && ((dir == '>' && mov[1] == 1) || (dir == '<' && mov[1] == -1)));
     }
 }
