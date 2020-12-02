@@ -21,5 +21,6 @@ the args are a bunch of tags as listed below
 
 -m -max (num) : only runs a max number of steps for the ball (default 10k) use a negative number for unlimited steps
 
--i -info : spits out info about the program after it completes```
+-i -info : spits out info about the program after it completes
+```
 
