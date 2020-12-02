@@ -12,7 +12,8 @@ the args are a bunch of tags as listed below
 ```
 -h -help : This shows help
 
--l -log  : This will log extra things in the terminal, such as the ball's position at each step, when memory cells are written to etc
+-l -log  : This will log extra things in the terminal, such as the ball's position at each step,
+             when memory cells are written to etc
 
 -d -docs : This shows some basic documentation about how to program in NDBall
 
