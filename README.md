@@ -10,13 +10,19 @@ the standard file format for saving NDBall files is .nds (N-Dimensinal Space), t
 the args are a bunch of tags as listed below
 
 -h -help : This shows help
+
 -l -log  : This will log extra things in the terminal, such as the ball's position at each step, when memory cells are written to etc
+
 -d -docs : This shows some basic documentation about how to program in NDBall
+
 -s -step : goes through the sim one step at a time, automaticly enables log
+
 -m -max (num) : only runs a max number of steps for the ball (default 10k) use a negative number for unlimited steps
+
 -i -info : spits out info about the program after it completes
 
 the -d tag show some basic docs as follows:
+
 
 the ball starts at 0,0,0...
 
@@ -37,20 +43,20 @@ this is useful for defining things instead of using a lot of zeros
 
 the ball moves along dimensions according to movement instructions
 
->n :ball moves forward on dim n
-<n :ball moves backward on dim n
-| :a mirror, direction of ball is reversed, dimention remains unchanged
-Kmov :a one way mirror, direction of ball is reversed unless the balls movment matches mov
+ >n :ball moves forward on dim n
+ <n :ball moves backward on dim n
+ | :a mirror, direction of ball is reversed, dimention remains unchanged
+ Kmov :a one way mirror, direction of ball is reversed unless the balls movment matches mov
 
 if the ball hits a wall the program ends
 
 the ball holds a value, an 8 bit unsigned integer (0-255)
 
 VALUE CHANGE:
-+ :increase the ball's value
-- :decrease the ball's value
-R :sets the ball's value to a random number from 0 to 255 (inclusive)
-the balls value wraps
+ + :increase the ball's value
+ - :decrease the ball's value
+ R :sets the ball's value to a random number from 0 to 255 (inclusive)
+ the balls value wraps
 
 INPUT/OUTPUT INSTR:
 p :print out the ASCII char associated with the value of the ball
