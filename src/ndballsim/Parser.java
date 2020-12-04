@@ -18,6 +18,10 @@ import java.util.regex.Pattern;
 public class Parser {
 
     public static Instr[] parse(String file) {
+        return parse(file, false);
+    }
+
+    public static Instr[] parse(String file, boolean unlimit) {
         //this is used later for regex matching
         Matcher match;
         //the current number of the file we are parseing, used when spitting out errors
@@ -69,8 +73,12 @@ public class Parser {
                             } catch (NumberFormatException e) {
                                 error(lineNum, "\"" + inputs[i] + "\" could not be converted into a number");
                             }
+                            //check if the provided number is from 0-4
+                            if(!unlimit && (ints[i] > 4 || ints[i] < 0)){
+                                error(lineNum, "Invalid dimentinal length, must be from 0 to 4");
+                            }
                         }
-                        //set the pos for the instructs acording to the parced values
+                        //set the pos for the instruction acording to the parced values
                         pos = new Pos(ints);
                         //remove the position string from the current line so we can parse the instruction next
                         line = line.replace(match.group(0), "");
@@ -112,7 +120,7 @@ public class Parser {
                             //shift the current position object along dim_number by ammount
                             pos.shift(ints[i], ints[i + 1]);
                             //check if we shifted the instruction out of the 5 cell area in each dimention
-                            if (ints[i + 1] > 4 || ints[i + 1] < 0) {
+                            if (!unlimit && (ints[i + 1] > 4 || ints[i + 1] < 0)) {
                                 error(lineNum, "Invalid dimentinal length, must be from 0 to 4");
                             }
                         }
@@ -300,6 +308,12 @@ public class Parser {
                 case 'n':
                     list.add(new Instr(pos, "n"));
                     break;
+                case 'L':
+                    list.add(new Instr(pos, "L", new ArrayList<Character>()));
+                    break;
+                case 's':
+                    list.add(new Instr(pos, "s", 0));
+                    break;
                 default:
                     error(lineNum, "Unknown Instruction \"" + line.charAt(0) + "\"");
                     break;
@@ -322,4 +336,5 @@ public class Parser {
         System.out.println("NDBall Parse ERROR: " + desc);
         System.exit(1);
     }
+
 }
