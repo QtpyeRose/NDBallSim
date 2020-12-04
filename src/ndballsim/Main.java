@@ -11,8 +11,9 @@ public class Main {
         boolean step = false;
         boolean log = false;
         boolean info = false;
+        boolean unlimit = false;
         int max = 10000;
-        String version = "V1.1.2";
+        String version = "V1.2.0";
         String help = "NDBall Simulator " + version + "\n"
                 + "Commands are formated like this:\n"
                 + "[flags] (file containing code)\n"
@@ -23,7 +24,11 @@ public class Main {
                 + "-d -docs : This shows some basic documentation about how to program in NDBall\n"
                 + "-s -step : goes through the sim one step at a time, automaticly enables log\n"
                 + "-m -max (num) : only runs a max number of steps for the ball (default 10k) use a negative number for unlimited steps\n"
-                + "-i -info : spits out info about the program after it completes";
+                + "-i -info : spits out info about the program after it completes\n"
+                + "-u : removes dimention size limit, this is a feature of this interpreter and goes against lang specifcations\n"
+                + "       so program that that require this may not run in other interpreters, make sure to use a max number of steps\n"
+                + "       or the program may crash";
+
         //no insput strings given
         if (args.length == 0) {
             System.out.println(help);
@@ -54,6 +59,9 @@ public class Main {
                     case "-i":
                     case "-info":
                         info = true;
+                        break;
+                    case "-u":
+                        unlimit = true;
                         break;
                     case "-d":
                     case "-docs":
@@ -97,13 +105,15 @@ public class Main {
                                 + "P :print out the value of the cell\n"
                                 + "$ :ask for a char and set balls value to its ASCII value\n"
                                 + "% :ask for an int input (0-255) and set the value of the ball to it\n"
+                                + "L :reads in a whole string of input, terminated with a 0 byte. each time the ball goes over it it will get the value of the next character in the string and consume it\n"
                                 + "\n"
                                 + "LOGIC INSTR:\n"
                                 + "Y[X,movA,movB] :if the ball`s value is below a, then move according to movA else move according to movB\n"
                                 + "\n"
                                 + "MEMORY CELL:\n"
                                 + "\n"
-                                + "#mov  :a memory cell that holds a value (0-255), mov is a movement statement (ex. >3), if the ball's movement is the same as the cell direction then the memory cell is written to, becoming the balls value. if not the cell is read and the ball becomes the value of the memory cell. they start with a value of 0\n"
+                                + "#mov :a memory cell that holds a value (0-255), mov is a movement statement (ex. >3), if the ball's movement is the same as the cell direction then the memory cell is written to, becoming the balls value. if not the cell is read and the ball becomes the value of the memory cell. they start with a value of 0\n"
+                                + "s : a swap cell, starts with a value of 0, when activated it swaps its value with that of the ball\n"
                                 + "\n"
                                 + "APIOFORMS:\n"
                                 + "these instructions allows you to keep a single value apart from the balls value and change it\n"
@@ -112,6 +122,7 @@ public class Main {
                                 + "q :the queen leaves the hive, taking all apioforms with her, hive value is now 0\n"
                                 + "n :nector attract apioforms to or away from the hive untill its value matches the ball\n"
                                 + "H :the hive itself, when run into the ball`s value becomes the hive value\n"
+                                + "\n"
                                 + "SPECIAL INSTR:\n"
                                 + "E end program\n"
                                 + "\n"
@@ -119,7 +130,7 @@ public class Main {
                                 + "");
                         break;
                     default:
-                        Simulator.run(args[i], max, log, step, info);
+                        Simulator.run(args[i], max, log, step, info, unlimit);
                         System.exit(0);
                         break;
 
