@@ -4,6 +4,7 @@
 //this class simulates the ball in n-dim space and run ther program based on a list if instructions
 package ndballsim;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.Random;
@@ -16,10 +17,10 @@ public class Simulator {
     private static long timeToRemove;
     // ... the code being measured ...
 
-    public static void run(String file, int max, boolean doLog, boolean step, boolean infoTag) {
+    public static void run(String file, int max, boolean doLog, boolean step, boolean infoTag, boolean unlimit) {
         //timeing stuff and 
         long parseStartTime = System.nanoTime();//start measuring parcer time
-        Instr[] instrs = Parser.parse(file);//this is the sorted list of instructions
+        Instr[] instrs = Parser.parse(file, unlimit);//this is the sorted list of instructions
         parseTime = System.nanoTime() - parseStartTime;//stop measuring parcer time
         //begine messuring Sim time
         startTime = System.nanoTime();
@@ -62,6 +63,10 @@ public class Simulator {
                 System.out.println("advance? enter|ctrl+c");
                 in.nextLine();
 
+            }
+            //throw an error if there is no hashmap key
+            if(startPos.get(ball.getHighestDim()) == null){
+                error("Traveled into a new highest dimension (" + movement[0] + ") that does not have any instructions");
             }
 
             //check if there is instruction at balls position
@@ -240,6 +245,34 @@ public class Simulator {
                         case "n":
                             hiveVal = ballVal;
                             break;
+                        case "L":
+                            //check if the list of chars is empty
+                            if (((ArrayList<Character>) instrs[1].info[0]).isEmpty()) {
+                                //ask for a string
+                                System.out.print("\nPlease input a string:");
+                                input = getInput(in);
+                                //add each char to the array
+                                for (char c : input.toCharArray()) {
+                                    //check if the charactor is askki
+                                    if (c < 0 || c > 255) {
+                                        warn("Char \"" + c + "\" not recognised. assumed to be 1");
+                                        ((ArrayList<Character>) instrs[1].info[0]).add((char) 1);
+                                        //ship the rest of the code and start from next one
+                                        continue;
+                                    }
+                                    ((ArrayList<Character>) instrs[1].info[0]).add(c);
+                                }
+                                ((ArrayList<Character>) instrs[1].info[0]).add((char) 0);
+                            }
+                            //set the balls value to the first char
+                            ballVal = (int) ((ArrayList<Character>) instrs[1].info[0]).remove(0);
+                            break;
+                        //a swap cell, swap the value of ball and this cell;
+                        case "s":
+                            newVal = (int) instrs[i].info[0];
+                            instrs[i].info[0] = ballVal;
+                            ballVal = newVal;
+
                         //the parcer spit out an unknown instruction
                         default:
                             error("Unkown Internal Instruction.\n"
@@ -263,12 +296,12 @@ public class Simulator {
             //actaly move the ball based on the movement
             ball.shift(movement[0], movement[1]);
             //this will only throw an error if the current dimention were movinth through is erased aka (0), in which case the check wont detect anything anyway
-            //error if the ball hits the wall
-            if (ball.getLength(movement[0]) > 4) {
+            //error if the ball hits the wall and the unlimit tag is not set
+            if (ball.getLength(movement[0]) > 4 && !unlimit) {
                 error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
                 System.exit(1);
             }
-            if (ball.getLength(movement[0]) == -1) {
+            if (ball.getLength(movement[0]) == -1 && !unlimit) {
                 error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
                 System.exit(1);
             }
