@@ -13,7 +13,7 @@ public class Main {
         boolean info = false;
         boolean unlimit = false;
         int max = 10000;
-        String version = "V1.2.0";
+        String version = "V1.2.1";
         String help = "NDBall Simulator " + version + "\n"
                 + "Commands are formated like this:\n"
                 + "[flags] (file containing code)\n"
@@ -22,10 +22,10 @@ public class Main {
                 + "-l -log  : This will log extra things in the terminal, such as the ball's position at each step,\n"
                 + "             when memory cells are written to etc\n"
                 + "-d -docs : This shows some basic documentation about how to program in NDBall\n"
-                + "-s -step : goes through the sim one step at a time, automaticly enables log\n"
-                + "-m -max (num) : only runs a max number of steps for the ball (default 10k) use a negative number for unlimited steps\n"
-                + "-i -info : spits out info about the program after it completes\n"
-                + "-u : removes dimention size limit, this is a feature of this interpreter and goes against lang specifcations\n"
+                + "-s -step : Goes through the sim one step at a time, automaticly enables log\n"
+                + "-m -max (num) : Only runs a max number of steps for the ball (default 10k) use a negative number for unlimited steps\n"
+                + "-i -info : Spits out info about the program after it completes\n"
+                + "-u : Removes dimension size limit, this is a feature of the interpreter and goes against lang specifcations\n"
                 + "       so program that that require this may not run in other interpreters, make sure to use a max number of steps\n"
                 + "       or the program may crash";
 
