@@ -74,7 +74,7 @@ public class Parser {
                                 error(lineNum, "\"" + inputs[i] + "\" could not be converted into a number");
                             }
                             //check if the provided number is from 0-4
-                            if(!unlimit && (ints[i] > 4 || ints[i] < 0)){
+                            if (!unlimit && (ints[i] > 4 || ints[i] < 0)) {
                                 error(lineNum, "Invalid dimentinal length, must be from 0 to 4");
                             }
                         }
