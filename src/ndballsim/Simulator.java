@@ -65,7 +65,7 @@ public class Simulator {
 
             }
             //throw an error if there is no hashmap key
-            if(startPos.get(ball.getHighestDim()) == null){
+            if (startPos.get(ball.getHighestDim()) == null) {
                 error("Traveled into a new highest dimension (" + movement[0] + ") that does not have any instructions");
             }
 
@@ -272,17 +272,17 @@ public class Simulator {
                             newVal = (int) instrs[i].info[0];
                             instrs[i].info[0] = ballVal;
                             ballVal = newVal;
-
+                            break;
                         //the parcer spit out an unknown instruction
                         default:
-                            error("Unkown Internal Instruction.\n"
-                                    + "This means the parcer spit out an instruction with an unknown name\n"
-                                    + "this should have been caught earlier by the parcer"
-                                    + "the error message means that \"I\" messed up in some way"
+                            error("Unknown Internal Instruction.\n"
+                                    + "This means the parser spit out an instruction with an unknown name\n"
+                                    + "this should have been caught earlier by the parcer\n"
+                                    + "the error message means that \"I\" messed up in some way\n"
                                     + "if you see this please open an issue on the Github page\n"
-                                    + "include a copy of your code, what version of the NDBallSim this error occured on"
-                                    + "and the name of the instruction given on the next line "
-                                    + "Instruction name:\"" + instrs[i].name + "\"");
+                                    + "include a copy of your code, what version of the NDBallSim this error occured on\n"
+                                    + "and the name of the instruction given on the next line\n"
+                                    + "Instruction name: \"" + instrs[i].name + "\"");
 
                     }
                 }
