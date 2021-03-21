@@ -92,7 +92,7 @@ public class Simulator {
                             break;
                         //print out the balls value
                         case "P":
-                            System.out.println(ballVal);
+                            System.out.print(ballVal);
                             break;
                         //end the program
                         case "E":
