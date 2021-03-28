@@ -19,9 +19,11 @@ public class Simulator {
 
     public static void run(String file, int max, boolean doLog, boolean step, boolean infoTag, boolean unlimit) {
         //timeing stuff and 
+        log("Attempting parsing");
         long parseStartTime = System.nanoTime();//start measuring parcer time
         Instr[] instrs = Parser.parse(file, unlimit);//this is the sorted list of instructions
         parseTime = System.nanoTime() - parseStartTime;//stop measuring parcer time
+        log("Parsing completed");
         //begine messuring Sim time
         startTime = System.nanoTime();
 
@@ -53,8 +55,7 @@ public class Simulator {
         int hiveVal = 0;//this is the value of the hive cell
         int newVal; //this is use to store a vlue for later use in the program
 
-        log("Attempting parsing");
-        log("Parsing completed");
+        
         log("Starting Simulation");
         while (true) {
             //if we are steping through once at a time
@@ -66,7 +67,7 @@ public class Simulator {
             }
             //throw an error if there is no hashmap key
             if (startPos.get(ball.getHighestDim()) == null) {
-                error("Traveled into a new highest dimension (" + movement[0] + ") that does not have any instructions");
+                error("Traveled into a new highest dimension (" + movement[0] + ") that does not have any instructions, you would just hit a wall");
             }
 
             //check if there is instruction at balls position
@@ -262,6 +263,7 @@ public class Simulator {
                                     }
                                     ((ArrayList<Character>) instrs[1].info[0]).add(c);
                                 }
+                                //add an extra 0 to the end to show that the it has run out of chars
                                 ((ArrayList<Character>) instrs[1].info[0]).add((char) 0);
                             }
                             //set the balls value to the first char
@@ -273,11 +275,11 @@ public class Simulator {
                             instrs[i].info[0] = ballVal;
                             ballVal = newVal;
                             break;
-                        //the parcer spit out an unknown instruction
+                        //the parser spit out an unknown instruction
                         default:
                             error("Unknown Internal Instruction.\n"
                                     + "This means the parser spit out an instruction with an unknown name\n"
-                                    + "this should have been caught earlier by the parcer\n"
+                                    + "this should have been caught earlier by the parser\n"
                                     + "the error message means that \"I\" messed up in some way\n"
                                     + "if you see this please open an issue on the Github page\n"
                                     + "include a copy of your code, what version of the NDBallSim this error occured on\n"
@@ -295,7 +297,7 @@ public class Simulator {
             }
             //actaly move the ball based on the movement
             ball.shift(movement[0], movement[1]);
-            //this will only throw an error if the current dimention were movinth through is erased aka (0), in which case the check wont detect anything anyway
+            //this will only throw an error if the current dimention were moving through is erased aka (0), in which case the check wont detect anything anyway
             //error if the ball hits the wall and the unlimit tag is not set
             if (ball.getLength(movement[0]) > 4 && !unlimit) {
                 error("The ball hit the wall at " + ball + " and shatterd into a thousand peices");
@@ -306,8 +308,12 @@ public class Simulator {
                 System.exit(1);
             }
 
+            //incroment steps counter
             stepsDone++;
+            //log incorment in steps counter
             log("Step " + stepsDone + " done");
+            
+            //end program cause max steps reached
             if (max >= 0 && stepsDone >= max) {
                 warn("Program terminated: reached max steps (" + max + "), to disable this use -m -1");
                 exit(infoTag, stepsDone, instrs.length);
@@ -334,7 +340,7 @@ public class Simulator {
         }
     }
 
-    //this exits the program doing nececary exit stuff
+    //this exits the program doing nececary exit stuff, souch as printing info under the info tag
     private static void exit(boolean outputInfo, int steps, int instNum) {
         if (outputInfo) {
             System.out.println("\n\n***** Sim Info *****\n"
@@ -367,7 +373,7 @@ public class Simulator {
 
     }
 
-    //this allows up to get input and pause timer for time waiting for input
+    //this allows you to get input and pause program execution length timer while waiting for input
     private static String getInput(Scanner scan) {
         long start = System.nanoTime();
         String input = scan.nextLine();
@@ -375,6 +381,8 @@ public class Simulator {
         return input;
     }
 
+    //this complex function takes in the movemnt of the ball as mov, a direction char ( > or < ), and the dimention. and cheks if they match 
+    //aka if balls movement is the same af a specific direction
     private static boolean matchMove(int[] mov, char dir, int dim) {
         return (dim == mov[0] && ((dir == '>' && mov[1] == 1) || (dir == '<' && mov[1] == -1)));
     }
