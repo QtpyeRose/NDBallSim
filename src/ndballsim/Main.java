@@ -12,8 +12,8 @@ public class Main {
         boolean log = false;
         boolean info = false;
         boolean unlimit = false;
-        int max = 10000;
-        String version = "V1.2.1";
+        int max = 100000;
+        String version = "V1.2.2";
         String help = "NDBall Simulator " + version + "\n"
                 + "Commands are formated like this:\n"
                 + "[flags] (file containing code)\n"
@@ -22,8 +22,8 @@ public class Main {
                 + "-l -log  : This will log extra things in the terminal, such as the ball's position at each step,\n"
                 + "             when memory cells are written to etc\n"
                 + "-d -docs : This shows some basic documentation about how to program in NDBall\n"
-                + "-s -step : Goes through the sim one step at a time, automaticly enables log\n"
-                + "-m -max (num) : Only runs a max number of steps for the ball (default 10k) use a negative number for unlimited steps\n"
+                + "-s -step : Goes through the sim one step at a time, automatically enables log\n"
+                + "-m -max (num) : Only runs a max number of steps for the ball (default 100k) use a negative number for unlimited steps\n"
                 + "-i -info : Spits out info about the program after it completes\n"
                 + "-u : Removes dimension size limit, this is a feature of the interpreter and goes against lang specifcations\n"
                 + "       so program that that require this may not run in other interpreters, make sure to use a max number of steps\n"
@@ -80,7 +80,7 @@ public class Main {
                                 + "\n"
                                 + "position can also be defined as a list of dim|value as this\n"
                                 + "EX: {0,1|5,1} = (1,0,0,0,0,1)\n"
-                                + "this is useful for defining things instead of using a lot of zeros \n"
+                                + "this is useful for defining things without using a lot of zeros \n"
                                 + "\n"
                                 + "the ball moves along dimensions according to movement instructions\n"
                                 + "\n"
@@ -89,7 +89,7 @@ public class Main {
                                 + "| :a mirror, direction of ball is reversed, dimention remains unchanged\n"
                                 + "Kmov :a one way mirror, direction of ball is reversed unless the balls movment matches mov\n"
                                 + "\n"
-                                + "if the ball hits a wall the program ends\n"
+                                + "if the ball hits a wall the program ends (and spits out an error)\n"
                                 + "\n"
                                 + "the ball holds a value, an 8 bit unsigned integer (0-255)\n"
                                 + "\n"
@@ -105,10 +105,10 @@ public class Main {
                                 + "P :print out the value of the cell\n"
                                 + "$ :ask for a char and set balls value to its ASCII value\n"
                                 + "% :ask for an int input (0-255) and set the value of the ball to it\n"
-                                + "L :reads in a whole string of input, terminated with a 0 byte. each time the ball goes over it it will get the value of the next character in the string and consume it\n"
+                                + "L :reads in a whole line of input, each time the ball goes over it, the ball will get the value of the next character in the string and consume it. terminated with a 0 value. if gone over again it will read in another line\n"
                                 + "\n"
                                 + "LOGIC INSTR:\n"
-                                + "Y[X,movA,movB] :if the ball`s value is below a, then move according to movA else move according to movB\n"
+                                + "Y[X,movA,movB] :if the ball`s value is below X, then move according to movA else move according to movB\n"
                                 + "\n"
                                 + "MEMORY CELL:\n"
                                 + "\n"
@@ -120,8 +120,9 @@ public class Main {
                                 + "a :an apioform joins the hive, increasing the have value by 1\n"
                                 + "f :an apioform leaves the hive to polinate flowers, decreasing the value of the hive by 1\n"
                                 + "q :the queen leaves the hive, taking all apioforms with her, hive value is now 0\n"
-                                + "n :nector attract apioforms to or away from the hive untill its value matches the ball\n"
+                                + "n :nector attracts apioforms to or away from the hive untill its value matches the ball\n"
                                 + "H :the hive itself, when run into the ball`s value becomes the hive value\n"
+                                + "(all hives share the same value)"
                                 + "\n"
                                 + "SPECIAL INSTR:\n"
                                 + "E end program\n"
