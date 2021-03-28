@@ -222,6 +222,7 @@ public class Simulator {
                             break;
                         //random instruction sets the balls value to (0-255)
                         case "R":
+                            log("ball set to random value");
                             ballVal = ran.nextInt(256);//set ball to random int
                             break;
                         //apioform instruction add 1 to hive
