@@ -28,7 +28,7 @@ public class Parser {
         int lineNum = 0;
         //this array list will be filled with instructions and returned at the end of the funtion
         ArrayList<Instr> list = new ArrayList<>();
-        //this scanner is used for reading in the file, we initalise it here
+        //this scanner is used for reading in the file, we initialize it here
         Scanner scanner = null;
         //we attempt to open the file to begin scanning, and error if it does not exist
         try {
@@ -40,13 +40,13 @@ public class Parser {
         while (scanner.hasNextLine()) {
             //increase the line num
             lineNum++;
-            //intinalise the position we will use for the instruction object later
+            //initialize the position we will use for the instruction object later
             Pos pos = null;
-            //remove whitespaces, we dont care about them
+            //remove whitespaces *(but not newlines), we dont care about them
             String line = scanner.nextLine().replaceAll(" ", "").replaceAll("\t", "");
 
             try {
-                //this allows us to skip a line  if there is nothing in a line
+                //this allows us to skip a line if there is nothing in a line
                 line.charAt(0);
             } catch (StringIndexOutOfBoundsException e) {
                 //skip the parcing of this line
@@ -54,7 +54,7 @@ public class Parser {
             }
             //parse the position identifier
             switch (line.charAt(0)) {
-                //if first char is a ( then we pase with (dim_0_length,dim_1_length...)
+                //if first char is a ( then we use the format (dim_0_length,dim_1_length...)
                 case '(':
                     //use regex to get the text that is "(anything)"
                     match = Pattern.compile("\\(.*?\\)").matcher(line);
@@ -75,7 +75,7 @@ public class Parser {
                             }
                             //check if the provided number is from 0-4
                             if (!unlimit && (ints[i] > 4 || ints[i] < 0)) {
-                                error(lineNum, "Invalid dimentinal length, must be from 0 to 4");
+                                error(lineNum, "Invalid dimensional length, must be from 0 to 4");
                             }
                         }
                         //set the pos for the instruction acording to the parced values
@@ -85,7 +85,7 @@ public class Parser {
 
                     } else {
                         // error cause there is no closeing )
-                        error(lineNum, "Invalid position, missing closeing )");
+                        error(lineNum, "Invalid position syntax, missing closeing )");
                     }
                     break;
                 //this means we are useing the format {dim_num,length|dim_num,length...}
@@ -111,17 +111,24 @@ public class Parser {
                         }
                         // check if number of ints is odd (an un closed pair) or if its 0 (no ints) and error if either
                         if (ints.length % 2 == 1 || ints.length == 0) {
-                            error(lineNum, "Invalid Position syntax, please format it like this {dim,length|dim,length|...}");
+                            error(lineNum, "Invalid position syntax, please format it like this {dim,length|dim,length|...}");
                         }
                         //here we will build the position based off the data in the ints array
                         pos = new Pos(0);
                         //go through the ints array in pars of 2, each pair is dim_number,ammount
                         for (int i = 0; i < ints.length; i += 2) {
+                            //skip the shifting if the shift amount is 0
+                            //this prevents from someone useing just {0,0} then it being shifted along 0
+                            //resulting in it being cleaned by the removal of dimentions with 0 length in the shift function.
+                            //causeing {0,0} to generate a instruction with no positions.
+                            if(ints[i + 1] == 0){
+                                continue;
+                            }
                             //shift the current position object along dim_number by ammount
                             pos.shift(ints[i], ints[i + 1]);
                             //check if we shifted the instruction out of the 5 cell area in each dimention
                             if (!unlimit && (ints[i + 1] > 4 || ints[i + 1] < 0)) {
-                                error(lineNum, "Invalid dimentinal length, must be from 0 to 4");
+                                error(lineNum, "Invalid dimensional length, must be from 0 to 4");
                             }
                         }
                         //remove the position string from the current line so we can parse the instruction next
@@ -136,7 +143,7 @@ public class Parser {
                     continue;
                 default:
                     //if we dont find a ( or { as the first char then the position decoration is malformed
-                    error(lineNum, "Invalid start of new line, must be a position decloration (a,b,c...) or {a,b|c,d...}");
+                    error(lineNum, "Invalid start of new line, must be a position decloration (a,b,c...) or {a,b|c,d...}, or a comment /");
                     break;
             }
             //parse the instruction
@@ -146,7 +153,7 @@ public class Parser {
             } catch (StringIndexOutOfBoundsException e) {
                 error(lineNum, "No instruction provided");
             }
-            // this int is not the dimention, but is used to stor tyhe dimention for things that require movement (like > and <)
+            // this int is not the dimention, but is used to stor the dimension for things that require movement (like > and <)
             int dim = 0;
             switch (line.charAt(0)) {
                 //forward movement instruction
@@ -224,7 +231,6 @@ public class Parser {
                             error(lineNum, "\"" + inputs[1].substring(1, inputs[1].length()) + "\" could not be converted into a number");
                         }
                     } else {
-
                         error(lineNum, "Y Logic instruction requires a directinal input EX: Y[10, >2, <7]");
                     }
                     //check if the second movement instruction includes a movement
@@ -298,19 +304,26 @@ public class Parser {
                 case 'H':
                     list.add(new Instr(pos, "H"));
                     break;
+                //one way mirror instruction
                 case 'K':
                     try {
-                    list.add(new Instr(pos, "K", line.charAt(1), Integer.parseInt(line.substring(2, line.length()))));
-                } catch (NumberFormatException e) {
-                    error(lineNum, "\"" + line.substring(2, line.length()) + "\" could not be converted into a number");
-                }
-                break;
+                        //try to add a mirror instructions, and read the direction and dimention all at once
+                        list.add(new Instr(pos, "K", line.charAt(1), Integer.parseInt(line.substring(2, line.length()))));
+                    } catch (NumberFormatException e) {
+                        //error the number is malformed
+                        error(lineNum, "\"" + line.substring(2, line.length()) + "\" could not be converted into a number");
+                    }
+                    break;
+                //nector instruction
                 case 'n':
                     list.add(new Instr(pos, "n"));
                     break;
+                //line of text read in instruction
                 case 'L':
+                    //the line instruction reads in a whole line of text. it is stored into the arrylist defined under the instr and filled at runtime.
                     list.add(new Instr(pos, "L", new ArrayList<Character>()));
                     break;
+                //swap cell instrution
                 case 's':
                     list.add(new Instr(pos, "s", 0));
                     break;
