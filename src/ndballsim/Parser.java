@@ -121,7 +121,7 @@ public class Parser {
                             //this prevents from someone useing just {0,0} then it being shifted along 0
                             //resulting in it being cleaned by the removal of dimentions with 0 length in the shift function.
                             //causeing {0,0} to generate a instruction with no positions.
-                            if(ints[i + 1] == 0){
+                            if (ints[i + 1] == 0) {
                                 continue;
                             }
                             //shift the current position object along dim_number by ammount
@@ -145,7 +145,7 @@ public class Parser {
                     //if we dont find a ( or { as the first char then the position decoration is malformed
                     error(lineNum, "Invalid start of new line, must be a position decloration (a,b,c...) or {a,b|c,d...}, or a comment /");
                     break;
-            }
+            }   
             //parse the instruction
             try {
                 //this allows us to tell an error if there is no instruction for a position
@@ -182,18 +182,55 @@ public class Parser {
                 break;
                 //its a P instruction, print
                 case 'P':
-                    list.add(new Instr(pos, "P"));
-                    break;
-                //Its an E instruction, end program
+                    //check if its just an P instruction
+                    if (line.length() == 1) {
+                        list.add(new Instr(pos, "P"));
+                        break;
+                    }
+                    //check if instruction is large enough to be PSt
+                    if (line.length() > 5) {
+                        //check if it is PSt[?]
+                        if (line.charAt(1) == 'S' && line.charAt(2) == 't' && line.charAt(3) == '[' && line.charAt(line.length() - 1) == ']') {
+                            try {
+                                list.add(new Instr(pos, "PSt", Integer.parseInt(line.substring(4, line.length()-1) )));
+                            } catch (NumberFormatException e) {
+                                //was not a number
+                                error(lineNum, "\"" + line.substring(1, line.length()-1) + "\" could not be converted into a number");
+                            }
+                            break;
+                        }
+                    }
+                    //uh oh, the instruction was neither
+                    error(lineNum, "Unknown Instruction \"" + line + "\"");
+                //Its an E instruction, end program or end string
                 case 'E':
-                    list.add(new Instr(pos, "E"));
-                    break;
+                    //check if its just an E instruction
+                    if (line.length() == 1) {
+                        list.add(new Instr(pos, "E"));
+                        break;
+                    }
+                    //check if instruction is large enough to be ESt
+                    if (line.length() > 2) {
+                        //check if it is ESt
+                        if (line.charAt(1) == 'S' && line.charAt(2) == 't') {
+                            list.add(new Instr(pos, "ESt"));
+                            break;
+                        }
+                    }
+                    //uh oh, the instruction was neither
+                    error(lineNum, "Unknown Instruction \"" + line + "\"");
                 // its a % instruction, read in number
                 case '%':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "%"));
                     break;
                 //its a Y logic instruciotn, this is complicated and formated like this Y[a,>b,>c]
                 case 'Y':
+                    //check if the correct length
+                    if (line.length() < 10) {
+                        error(lineNum, "Y logic Instruction malformed got: \"" + line + "\" you need this format Y[10, >2, <7]");
+                    }
                     //check if it has the [
                     if (line.charAt(1) != '[') {
                         error(lineNum, "Y logic instruction requires a starting \"[\"");
@@ -248,10 +285,14 @@ public class Parser {
                     list.add(new Instr(pos, "Y", value, "" + inputs[1].charAt(0), dim1, "" + inputs[2].charAt(0), dim2));
                     break;
                 case '+':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     //add a new + instruction
                     list.add(new Instr(pos, "+"));
                     break;
                 case '-':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     //add a new - instruction
                     list.add(new Instr(pos, "-"));
                     break;
@@ -274,58 +315,116 @@ public class Parser {
                 //if we cant find an instruction we error
                 //input a char
                 case '$':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "$"));
                     break;
                 //print out a char
                 case 'p':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "p"));
                     break;
                 //mirror instruction, reverses direction
                 case '|':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "|"));
                     break;
                 //random instruction sets the balls value to (0-255)
                 case 'R':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "R"));
                     break;
                 //apioform instruction add 1 to hive
                 case 'a':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "a"));
                     break;
                 //flower instruction remove 1 from hive
                 case 'f':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "f"));
                     break;
                 //queen instruction, set hive value to 0
                 case 'q':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "q"));
                     break;
                 //hive cell
                 case 'H':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "H"));
                     break;
                 //one way mirror instruction
                 case 'K':
                     try {
-                        //try to add a mirror instructions, and read the direction and dimention all at once
-                        list.add(new Instr(pos, "K", line.charAt(1), Integer.parseInt(line.substring(2, line.length()))));
-                    } catch (NumberFormatException e) {
-                        //error the number is malformed
-                        error(lineNum, "\"" + line.substring(2, line.length()) + "\" could not be converted into a number");
-                    }
-                    break;
+                    //try to add a mirror instructions, and read the direction and dimention all at once
+                    list.add(new Instr(pos, "K", line.charAt(1), Integer.parseInt(line.substring(2, line.length()))));
+                } catch (NumberFormatException e) {
+                    //error the number is malformed
+                    error(lineNum, "\"" + line.substring(2, line.length()) + "\" could not be converted into a number");
+                }
+                break;
                 //nector instruction
                 case 'n':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "n"));
                     break;
                 //line of text read in instruction
                 case 'L':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     //the line instruction reads in a whole line of text. it is stored into the arrylist defined under the instr and filled at runtime.
                     list.add(new Instr(pos, "L", new ArrayList<Character>()));
                     break;
                 //swap cell instrution
                 case 's':
+                    //check if the correct length
+                    checkLength(line, 1, lineNum);
                     list.add(new Instr(pos, "s", 0));
+                    break;
+                //sync cell
+                case 'S':
+                    //check which S instruction it is
+                    switch (line.charAt(1)) {
+                        case '[':
+                            //check if it has the ]
+                            if (line.charAt(line.length() - 1) != ']') {
+                                error(lineNum, "Sync instruction requires a ending \"]\"  ex. S[num]");
+                            }
+                            try {
+                                list.add(new Instr(pos, "S", Long.parseLong(line.substring(2, line.length() - 1)) * 1000000, 0l));
+                            } catch (NumberFormatException e) {
+                                //was not a number
+                                error(lineNum, "\"" + line.substring(2, line.length() - 1) + "\" could not be converted into a number");
+                            }
+                            break;
+                        case 't':
+                            if (line.charAt(2) != '[') {
+                                error(lineNum, "String instruction requires a starting \"[]\"  ex. St[num]");
+                            }
+                            if (line.charAt(line.length() - 1) != ']') {
+                                error(lineNum, "String instruction requires a ending \"]\"  ex. St[num]");
+                            }
+                            try {
+                                list.add(new Instr(pos, "St", Integer.parseInt(line.substring(3, line.length() - 1))));
+                            } catch (NumberFormatException e) {
+                                //was not a number
+                                error(lineNum, "\"" + line.substring(3, line.length() - 1) + "\" could not be converted into a number");
+                            }
+
+                            break;
+                        default:
+                            error(lineNum, "Instruction S missing next char. it either need to a \"[\" for a sync ex. S[num] or a \"t\" for string ex. St[num]");
+                    }
+
                     break;
                 default:
                     error(lineNum, "Unknown Instruction \"" + line.charAt(0) + "\"");
@@ -335,6 +434,16 @@ public class Parser {
         }
         //sort the array list based on the highest dimention
         Collections.sort(list);
+        
+        //check for dulicates
+        //crawl though the sorted array
+        for (int i = 1; i < list.size(); i++) {
+            //check if the pos is equal to the pevious
+            if (list.get(i).pos.equals(list.get(i-1).pos)){
+                error("uh oh, there is more then one instruction in pos: "+ list.get(i).pos);
+            }
+        }
+        
         //return a list of all the instruction we parsed
         return list.toArray(new Instr[list.size()]);
     }
@@ -348,6 +457,13 @@ public class Parser {
     private static void error(String desc) {
         System.out.println("NDBall Parse ERROR: " + desc);
         System.exit(1);
+    }
+
+    //this fucntion errors the program if the provided string is the the given length, used when cheking to make sure that the 1 instruction chars are actaly one char
+    private static void checkLength(String toCheck, int length, int lineNum) {
+        if (toCheck.length() != length) {
+            error(lineNum, "Unknown or malformed Instruction \"" + toCheck + "\"");
+        }
     }
 
 }
