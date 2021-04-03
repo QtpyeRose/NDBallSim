@@ -276,6 +276,20 @@ public class Simulator {
                             instrs[i].info[0] = ballVal;
                             ballVal = newVal;
                             break;
+                        case "S":
+                            //check if we have a timer active 
+                            if((long)instrs[i].info[1] != 0l){
+                                //wait untill we hit the specified time
+                                while( System.nanoTime() < (long)instrs[i].info[1]){
+                                    //we wait untill the timer is up
+                                }
+                                //re set time
+                                instrs[i].info[1] = 0l;
+                                break;
+                            }
+                            //timer has not been set, set it
+                            instrs[i].info[1] = System.nanoTime() + (long)instrs[i].info[0];
+                            break;
                         //the parser spit out an unknown instruction
                         default:
                             error("Unknown Internal Instruction.\n"
