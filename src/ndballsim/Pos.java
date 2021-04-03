@@ -112,7 +112,7 @@ public class Pos {
         if (!(o instanceof Pos)) {
             return false;
         }
-        // typecast o to Vector so that we can compare data members  
+        // typecast o to Pos so that we can compare data members  
         Pos p = (Pos) o;
         // Compare the data members and return accordingly 
         //if they are not the same length they dont have the same number of defined dimentions
