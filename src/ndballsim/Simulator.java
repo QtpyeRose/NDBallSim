@@ -15,9 +15,17 @@ public class Simulator {
     private static long startTime;
     private static long parseTime;
     private static long timeToRemove;
+    //this output specifies whether we output to terminal (-1) or build a string (>=0)
+    private static int output;
+    //this hash map stores the strings
+    private static HashMap<Integer, String> strings;
     // ... the code being measured ...
 
     public static void run(String file, int max, boolean doLog, boolean step, boolean infoTag, boolean unlimit) {
+        //set up output and string hashmap
+        output = -1;
+        strings = new HashMap<>();
+
         //timeing stuff and 
         log("Attempting parsing");
         long parseStartTime = System.nanoTime();//start measuring parcer time
@@ -55,7 +63,6 @@ public class Simulator {
         int hiveVal = 0;//this is the value of the hive cell
         int newVal; //this is use to store a vlue for later use in the program
 
-        
         log("Starting Simulation");
         while (true) {
             //if we are steping through once at a time
@@ -93,7 +100,7 @@ public class Simulator {
                             break;
                         //print out the balls value
                         case "P":
-                            System.out.print(ballVal);
+                            print("" + ballVal);
                             break;
                         //end the program
                         case "E":
@@ -202,7 +209,8 @@ public class Simulator {
                             break;
                         //output the value of the ball as a char
                         case "p":
-                            System.out.print((char) ballVal);
+                            //convert int to char to string
+                            print(""+(char) ballVal);
                             break;
                         //mirror instruction, reverses direction
                         case "|":
@@ -278,9 +286,9 @@ public class Simulator {
                             break;
                         case "S":
                             //check if we have a timer active 
-                            if((long)instrs[i].info[1] != 0l){
+                            if ((long) instrs[i].info[1] != 0l) {
                                 //wait untill we hit the specified time
-                                while( System.nanoTime() < (long)instrs[i].info[1]){
+                                while (System.nanoTime() < (long) instrs[i].info[1]) {
                                     //we wait untill the timer is up
                                 }
                                 //re set time
@@ -288,7 +296,23 @@ public class Simulator {
                                 break;
                             }
                             //timer has not been set, set it
-                            instrs[i].info[1] = System.nanoTime() + (long)instrs[i].info[0];
+                            instrs[i].info[1] = System.nanoTime() + (long) instrs[i].info[0];
+                            break;
+                        //a string instruction
+                        case "St":
+                            log("now writing to " + (int)instrs[i].info[0]);
+                            //set the output to the number for string to write to
+                            output = (int)instrs[i].info[0];
+                            break;
+                        case "ESt":
+                            log("now writing to terminal");
+                            //set output back to terminal
+                            output = -1;
+                            break;
+                        case "PSt":
+                            log("Printing string number " + (int)instrs[i].info[0]);
+                            //print the sting refrenced by the int provided
+                            System.out.print(strings.get((int)instrs[i].info[0]));
                             break;
                         //the parser spit out an unknown instruction
                         default:
@@ -327,7 +351,7 @@ public class Simulator {
             stepsDone++;
             //log incorment in steps counter
             log("Step " + stepsDone + " done");
-            
+
             //end program cause max steps reached
             if (max >= 0 && stepsDone >= max) {
                 warn("Program terminated: reached max steps (" + max + "), to disable this use -m -1");
@@ -400,5 +424,22 @@ public class Simulator {
     //aka if balls movement is the same af a specific direction
     private static boolean matchMove(int[] mov, char dir, int dim) {
         return (dim == mov[0] && ((dir == '>' && mov[1] == 1) || (dir == '<' && mov[1] == -1)));
+    }
+
+    //this function handles all calls of print (weather to terminal or string)
+    private static void print(String toPrint) {
+        //location of -1 means that
+        if (output == -1) {
+            System.out.print(toPrint);
+        } else {
+            //if there is no entry add one
+            if (!strings.containsKey(output)) {
+                //add a entry for the string =
+                strings.put(output, toPrint);
+            } else {
+                //append the string
+                strings.put(output, strings.get(output) + toPrint);
+            }
+        }
     }
 }
