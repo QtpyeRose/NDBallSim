@@ -13,7 +13,7 @@ public class Main {
         boolean info = false;
         boolean unlimit = false;
         int max = 100000;
-        String version = "V1.2.2";
+        String version = "V1.3.0";
         String help = "NDBall Simulator " + version + "\n"
                 + "Commands are formated like this:\n"
                 + "[flags] (file containing code)\n"
