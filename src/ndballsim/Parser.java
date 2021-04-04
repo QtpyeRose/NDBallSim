@@ -414,6 +414,9 @@ public class Parser {
                                 error(lineNum, "String instruction requires a ending \"]\"  ex. St[num]");
                             }
                             try {
+                                if( Integer.parseInt(line.substring(3, line.length() - 1)) < 0){
+                                    error(lineNum, "String instruction only accepts non-negative numbers");
+                                }
                                 list.add(new Instr(pos, "St", Integer.parseInt(line.substring(3, line.length() - 1))));
                             } catch (NumberFormatException e) {
                                 //was not a number
